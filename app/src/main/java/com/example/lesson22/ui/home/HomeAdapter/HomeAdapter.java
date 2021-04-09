@@ -3,14 +3,13 @@ package com.example.lesson22.ui.home.HomeAdapter;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lesson22.App;
 import com.example.lesson22.databinding.ItemLayoutBinding;
 
 import java.util.ArrayList;
@@ -54,6 +53,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         notifyDataSetChanged();
     }
 
+    public void addItemList(List<HomeModel> homeModels) {
+        list = homeModels;
+        notifyDataSetChanged();
+    }
+
     public HomeModel getModelToId(int id) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getId() == id) {
@@ -76,7 +80,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
 
             binding.nameItem.setText(homeModel.getName());
             binding.numberItem.setText(homeModel.getNumber());
-            binding.date.setText(homeModel.getDate());
+//            binding.date.setText(homeModel.getDate());
 
             binding.getRoot().setOnClickListener(v -> {
                 listen.setDataForForm(homeModel, getAdapterPosition());
@@ -90,7 +94,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
                 adg.setPositiveButton(positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        list.remove(getAdapterPosition());
+                        App.fillDatabase.fillDao().delete(list.get(getAdapterPosition()));
                         notifyDataSetChanged();
                     }
                 });

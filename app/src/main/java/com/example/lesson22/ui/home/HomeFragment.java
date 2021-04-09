@@ -11,10 +11,10 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentResultListener;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.lesson22.App;
 import com.example.lesson22.R;
 import com.example.lesson22.databinding.FragmentHomeBinding;
 import com.example.lesson22.ui.home.HomeAdapter.HomeAdapter;
@@ -32,12 +32,14 @@ public class HomeFragment extends Fragment implements Listen {
     private HomeAdapter homeAdapter;
     private List<HomeModel> list = new ArrayList<>();
 
+    private int id;
+    private String a, b;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeAdapter = new HomeAdapter(this);
-
 
     }
 
@@ -45,8 +47,11 @@ public class HomeFragment extends Fragment implements Listen {
         navController = NavHostFragment.findNavController(this);
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        binding.rv.setAdapter(homeAdapter);
 
+        App.fillDatabase.fillDao().getAll().observe(getViewLifecycleOwner(), homeModels ->
+                homeAdapter.addItemList(homeModels));
+
+        binding.rv.setAdapter(homeAdapter);
         click();
         getDataInForm();
 
@@ -59,28 +64,28 @@ public class HomeFragment extends Fragment implements Listen {
                                 alert();
                             }
                         });
+
         return binding.getRoot();
     }
 
     private void getDataInForm() {
         //добавление
         getParentFragmentManager().setFragmentResultListener("key",
-                getViewLifecycleOwner(), new FragmentResultListener() {
-                    @Override
-                    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                        String a = result.getString("name");
-                        String b = result.getString("number");
-                        int id = result.getInt("id");
+                getViewLifecycleOwner(), (requestKey, result) -> {
+                    a = result.getString("name");
+                    b = result.getString("number");
+                    id = result.getInt("id");
 
-                        HomeModel model = homeAdapter.getModelToId(id);
-                        if (model != null) {
-                            model.setName(a);
-                            model.setNumber(b);
-                            homeAdapter.notifyDataSetChanged();
-                        } else {
-                            homeAdapter.addList(new HomeModel(a, b));
 
-                        }
+                    HomeModel model = homeAdapter.getModelToId(id);
+                    if (model != null) {
+                        model.setName(a);
+                        model.setNumber(b);
+                        App.fillDatabase.fillDao().update(model);
+
+                    } else {
+                        App.fillDatabase.fillDao().insert(new HomeModel(a, b));
+
                     }
                 });
     }

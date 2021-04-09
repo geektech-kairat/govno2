@@ -12,7 +12,9 @@ import androidx.fragment.app.FragmentResultListener;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.lesson22.App;
 import com.example.lesson22.databinding.FragmentFormBinding;
+import com.example.lesson22.ui.home.HomeAdapter.HomeModel;
 
 public class FormFragment extends Fragment {
     private @NonNull
