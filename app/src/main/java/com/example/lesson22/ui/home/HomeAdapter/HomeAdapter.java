@@ -33,8 +33,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         holder.onBind(list.get(position), listen);
         if (position % 2 == 0) {
             binding.holderItem.setBackgroundColor(Color.CYAN);
+
         } else {
             binding.holderItem.setBackgroundColor(Color.YELLOW);
+
+
         }
     }
 
@@ -67,6 +70,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         return null;
     }
 
+    public HomeModel findBiPos(int position) {
+        return list.get(position);
+    }
+
     class HomeViewHolder extends RecyclerView.ViewHolder {
 
 
@@ -87,19 +94,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
             });
 
             binding.getRoot().setOnLongClickListener(v -> {
-                AlertDialog.Builder adg = new AlertDialog.Builder(binding.getRoot().getContext());
-                String positive = "Да";
-                String negative = "Нет";
-                adg.setMessage("Вы хотите удалить ?");
-                adg.setPositiveButton(positive, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        App.fillDatabase.fillDao().delete(list.get(getAdapterPosition()));
-                        notifyDataSetChanged();
-                    }
-                });
-                adg.setNegativeButton(negative, null);
-                adg.show();
+                listen.del(getAdapterPosition());
+
                 return true;
             });
         }

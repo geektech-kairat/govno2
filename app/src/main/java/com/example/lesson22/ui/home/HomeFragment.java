@@ -3,6 +3,7 @@ package com.example.lesson22.ui.home;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -40,7 +42,6 @@ public class HomeFragment extends Fragment implements Listen {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeAdapter = new HomeAdapter(this);
-
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,12 +49,20 @@ public class HomeFragment extends Fragment implements Listen {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
 
-        App.fillDatabase.fillDao().getAll().observe(getViewLifecycleOwner(), homeModels ->
-                homeAdapter.addItemList(homeModels));
 
-        binding.rv.setAdapter(homeAdapter);
+
+
+
         click();
         getDataInForm();
+
+        App.fillDatabase.fillDao().getAll().observe(getViewLifecycleOwner(), new Observer<List<HomeModel>>() {
+            @Override
+            public void onChanged(List<HomeModel> homeModels) {
+                homeAdapter.addItemList(homeModels);
+            }
+        });
+        binding.rv.setAdapter(homeAdapter);
 
         requireActivity().getOnBackPressedDispatcher().
                 addCallback(
@@ -64,6 +73,11 @@ public class HomeFragment extends Fragment implements Listen {
                                 alert();
                             }
                         });
+
+        binding.button.setOnClickListener(v -> {
+            homeAdapter.addItemList(App.fillDatabase.fillDao().getSort());
+            binding.rv.setAdapter(homeAdapter);
+        });
 
         return binding.getRoot();
     }
@@ -83,6 +97,7 @@ public class HomeFragment extends Fragment implements Listen {
                         model.setNumber(b);
                         App.fillDatabase.fillDao().update(model);
 
+
                     } else {
                         App.fillDatabase.fillDao().insert(new HomeModel(a, b));
 
@@ -101,6 +116,27 @@ public class HomeFragment extends Fragment implements Listen {
         getParentFragmentManager().setFragmentResult("2", bundle);
         navController.navigate(R.id.action_navigation_home_to_profileFragment);
     }
+
+    @Override
+    public void del(int position) {
+        AlertDialog.Builder adg = new AlertDialog.Builder(binding.getRoot().getContext());
+        String positive = "Да";
+        String negative = "Нет";
+        adg.setMessage("Вы хотите удалить ?");
+        adg.setPositiveButton(positive, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                HomeModel model = homeAdapter.findBiPos(position);
+                App.fillDatabase.fillDao().delete(model);
+
+
+            }
+        });
+        adg.setNegativeButton(negative, null);
+        adg.show();
+
+    }
+
 
     public void click() {
         binding.fabAdd.setOnClickListener(v -> {

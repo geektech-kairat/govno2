@@ -18,7 +18,7 @@ public interface FillDao {
     @Query("SELECT * FROM homemodel")
     LiveData<List<HomeModel>> getAll();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void insert(HomeModel homeModel);
 
     @Delete
@@ -27,10 +27,7 @@ public interface FillDao {
     @Update
     void update(HomeModel homeModel);
 
-
-
-
-
-
+    @Query("SELECT * FROM homemodel ORDER BY name ASC ")
+    List <HomeModel> getSort();
 
 }
